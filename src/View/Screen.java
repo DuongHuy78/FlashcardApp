@@ -1,31 +1,30 @@
 package View;
-import View.CardFlipPanel;
 import javax.swing.*;
 import Model.Lesson;
+import Model.ListCard;
+import Controller.FlashCardListener;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.LinkedList;
 
 public class Screen extends JFrame{
-    private Lesson lesson;
+    private ActionListener ac;
+    CardFlipPanel cardFlipPanel = new CardFlipPanel();
+
     public Screen() {
-        this.lesson = new Lesson();
         this.setTitle("Flashcard App");
         this.setSize(800, 600);
         this.setLayout(new BorderLayout());
         this.setBackground(Color.darkGray);
 
-        CardFlipPanel cardFlipPanel = new CardFlipPanel();
-        
-        cardFlipPanel.setQuestionContent("Hello");
-        cardFlipPanel.setAnswerContent("you are success");
-        
-        // JPanel centralPanel = new JPanel();
-        // centralPanel.setLayout(new BorderLayout());
-        // centralPanel.setBackground(Color.LIGHT_GRAY);
-        // centralPanel.setPreferredSize(new Dimension(500,300));
-        // centralPanel.add(cardFlipPanel, BorderLayout.CENTER);
-        this.add(cardFlipPanel, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(cardFlipPanel);
+        // hàm này sẽ tự động thêm thanh cuộn vào panel nếu cần
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Tăng tốc độ cuộn
+        this.add(scrollPane, BorderLayout.CENTER);
 
 
         JButton button_Swap = new JButton("Swap");
@@ -65,12 +64,32 @@ public class Screen extends JFrame{
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            new Screen();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void setQuestionContent(String question) {
+        cardFlipPanel.setQuestionContent(question);
+        SwingUtilities.invokeLater(() -> {
+            JScrollPane scrollPane = (JScrollPane)cardFlipPanel.getParent().getParent();
+            scrollPane.getVerticalScrollBar().setValue(0);
+        });
+    }
+
+    public void setAnswerContent(String answer) {
+        cardFlipPanel.setAnswerContent(answer);
+        SwingUtilities.invokeLater(() -> {
+            JScrollPane scrollPane = (JScrollPane)cardFlipPanel.getParent().getParent();
+            scrollPane.getVerticalScrollBar().setValue(0);
+        });
+    }
+
+    public void setActionListener(ListCard listCard) {
+        this.ac = new FlashCardListener(this, listCard);
+
+        for (Component comp : ((JPanel)this.getContentPane().getComponent(1)).getComponents()) {
+            if (comp instanceof JButton) {
+                JButton btn = (JButton)comp;
+                if (btn.getText().equals("Next") || btn.getText().equals("Previous")) {
+                    btn.addActionListener(ac);
+                }
+            }
         }
     }
 }

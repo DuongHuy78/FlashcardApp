@@ -2,45 +2,30 @@ package View;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class CardFlipPanel extends JPanel {
     private String questionContent;
     private String answerContent;
-    private boolean isShowQuestion = true;
+    private boolean isShowQuestion;
     private Timer timer;
     private int animationSteps = 20;
     private int currentStep = 0;
 
     public CardFlipPanel() {
-        // setLayout(new CardLayout());
-        // this.isShowQuestion = true;
-
-        
-        // this.answerPanel = new JPanel();
-        // answerPanel.setLayout(new BorderLayout());
-        // answerPanel.setBackground(Color.WHITE);
-        // JLabel answerLabel = new JLabel("back");
-        // answerLabel.setFont(new Font("Arial", Font.BOLD, 40));
-        // answerLabel.setHorizontalAlignment(SwingConstants.CENTER); // Căn giữa text theo chiều ngang
-        // answerLabel.setVerticalAlignment(SwingConstants.CENTER);   // Căn giữa text theo chiều dọc
-        // answerPanel.add(answerLabel);
-
-        // this.add(questionPanel, "question");
-        // this.add(answerPanel, "answer");
+        isShowQuestion = true;
         timer = new Timer(10, e -> animateFlip());
-
         setBackground(Color.lightGray);
-
     }
 
     public void setQuestionContent(String front) {
         questionContent = front;
+        revalidate();
         repaint();      //Yêu cầu hệ thống vẽ lại thành phần, từ đó tự động gọi paintComponent(Graphics g).
     }
 
     public void setAnswerContent(String front) {
         answerContent = front;
+        revalidate();
         repaint();      //Yêu cầu hệ thống vẽ lại thành phần, từ đó tự động gọi paintComponent(Graphics g).
     }
 
@@ -56,13 +41,6 @@ public class CardFlipPanel extends JPanel {
                         //nó cập nhật giá trị scale, rồi gọi repaint(). 
                         //Khi đó, paintComponent(Graphics g) được Swing gọi để vẽ lại giao diện với hiệu ứng mới.
         if(currentStep == animationSteps / 2) {
-            // CardLayout temp = (CardLayout) this.getLayout();
-            // if(isShowQuestion) {
-            //     temp.show(this, "answer");
-            // }
-            // else {
-            //     temp.show(this, "question");
-            // }
             isShowQuestion = !isShowQuestion;
         }
 
@@ -79,15 +57,15 @@ public class CardFlipPanel extends JPanel {
         
         // Tạo hiệu ứng co đối tượng (text)
         double scale = Math.abs(Math.cos(Math.PI * currentStep / animationSteps));
-        int w = getWidth();
-        int h = getHeight();
+        int w = getWidth(); // Lấy chiều rộng của panel
+        int h = getHeight(); // Lấy chiều cao của panel
         
         // Di chuyển gốc tọa độ đến giữa panel
         if(timer.isRunning()) {
             g2d.translate(w/2, h/2);
         
             // Co giãn theo trục X
-            g2d.scale(scale, scale);
+            g2d.scale(scale, 1);
             
             // Di chuyển ngược lại
             g2d.translate(-w/2, -h/2);
@@ -103,11 +81,62 @@ public class CardFlipPanel extends JPanel {
         // Vẽ text ở giữa panel
         g2d.setFont(new Font("Arial", Font.BOLD, 40));
         FontMetrics fm = g2d.getFontMetrics(); // Để lấy kích thước của font
-        int x = (w - fm.stringWidth(text)) / 2; // Căn giữa theo chiều ngang lấy width của Panel trừ đi width của text rồi chia 2
-        // Căn giữa theo chiều dọc
-        // lấy ascent() của font cộng với height của Panel trừ đi ascent và descent của font rồi chia 2
-        int y = (fm.getAscent() + (h - (fm.getAscent() + fm.getDescent())) / 2); 
-        g2d.drawString(text, x, y);
+        int maxWidth = w - 20;
+        int x;
+        int y = fm.getAscent() + 10;
+        String[] words = text.split(" ");
+        StringBuilder line = new StringBuilder();
+        if(words.length == 0) {
+            return;
+        }
+        for(String word : words) {
+            if(fm.stringWidth(line + word) < maxWidth) {
+                line.append(word).append(" ");
+            }
+            else {
+                line.delete(line.length() - 1, line.length());
+                x = (w - fm.stringWidth(line.toString())) / 2;
+                g2d.drawString(line.toString(), x, y);
+                y += fm.getHeight();
+                line = new StringBuilder(word + " ");
+            }
+        }
+        x = (w - fm.stringWidth(line.toString())) / 2;
+        g2d.drawString(line.toString(), x, y);
         g2d.dispose();
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        // Tính toán chiều cao cần thiết dựa trên nội dung
+        Dimension size = super.getPreferredSize();
+        String text = isShowQuestion ? questionContent : answerContent;
+        if(text == null || text.isEmpty()) {
+            return new Dimension(400, 300);
+        }
+        Graphics2D g2d = (Graphics2D) getGraphics();
+        if(g2d == null) {
+            return new Dimension(400, 300);
+        }
+        FontMetrics fm = g2d.getFontMetrics(new Font("Arial", Font.BOLD, 40));
+        int width = getParent() != null ? getParent().getWidth() - 20 : 400; // Chiều rộng mặc định nếu chưa được vẽ
+        int maxWidth = width - 20;
+        int height = 20; // Padding trên
+        // Tính toán chiều cao dựa trên text được chia dòng
+        String[] words = text.split(" ");
+        StringBuilder line = new StringBuilder();
+        for (String word : words) {
+            if (fm.stringWidth(line + word) < maxWidth) {
+                line.append(word).append(" ");
+            } else {
+                height += fm.getHeight();
+                line = new StringBuilder(word + " ");
+            }
+        }
+        // Thêm chiều cao cho dòng cuối
+        height += fm.getHeight() + 20; // Thêm padding dưới
+        
+        size.height = height;
+        return size;
     }
 }

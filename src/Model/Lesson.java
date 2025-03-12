@@ -25,6 +25,10 @@ public class Lesson {
         return this.listCards;
     }
 
+    public void setListCards(LinkedList<ListCard> listCards) {
+        this.listCards = listCards;
+    }
+
     public int getLength() {
         return this.Length;
     }
