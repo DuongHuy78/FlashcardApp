@@ -19,6 +19,8 @@ public class FlashCardListener implements ActionListener {
             listCard.previousCard(); // First move to previous card
             screen.setQuestionContent(listCard.getQuestion());
             screen.setAnswerContent(listCard.getAnswer());
+        } else if (e.getActionCommand().equals("Swap")) {
+        	screen.swap();
         }
     }
 

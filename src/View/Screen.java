@@ -1,12 +1,10 @@
 package View;
 import javax.swing.*;
-import Model.Lesson;
 import Model.ListCard;
 import Controller.FlashCardListener;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.LinkedList;
 
 public class Screen extends JFrame{
     private ActionListener ac;
@@ -18,24 +16,54 @@ public class Screen extends JFrame{
         this.setLayout(new BorderLayout());
         this.setBackground(Color.darkGray);
 
-        JScrollPane scrollPane = new JScrollPane(cardFlipPanel);
-        // hàm này sẽ tự động thêm thanh cuộn vào panel nếu cần
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setBorder(null);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Tăng tốc độ cuộn
-        this.add(scrollPane, BorderLayout.CENTER);
+        setupMenuBar();
+        setupCardPanel();
+        setupButtons();
 
+        this.setLocationRelativeTo(null);
+        this.setVisible(true);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
 
+    private void setupMenuBar() {
+        JMenuBar MenuBar = new JMenuBar(); 
+        JMenu jMenu_home = new JMenu("Home");
+        JMenu jMenu_add = new JMenu("Add");
+        JMenu jMenu_edit = new JMenu("Edit");
+        JMenu jMenu_delete = new JMenu("Delete");
+
+        JMenuItem jMenuItem_add_card = new JMenuItem("Add Card");
+        JMenuItem jMenuItem_add_list = new JMenuItem("Add List");
+        JMenuItem jMenuItem_edit_card = new JMenuItem("Edit this Card");
+        JMenuItem jMenuItem_edit_list = new JMenuItem("Edit this List");
+        JMenuItem jMenuItem_delete_card = new JMenuItem("Delete this Card");
+        JMenuItem jMenuItem_delete_list = new JMenuItem("Delete this List");
+
+        jMenu_add.addSeparator(); 
+        jMenu_add.add(jMenuItem_add_card);
+        jMenu_add.addSeparator(); 
+        jMenu_add.add(jMenuItem_add_list);
+        jMenu_edit.addSeparator();
+        jMenu_edit.add(jMenuItem_edit_card);
+        jMenu_edit.addSeparator();
+        jMenu_edit.add(jMenuItem_edit_list);
+        jMenu_delete.addSeparator();
+        jMenu_delete.add(jMenuItem_delete_card);
+        jMenu_delete.addSeparator();
+        jMenu_delete.add(jMenuItem_delete_list);
+        
+        MenuBar.add(jMenu_home);
+        MenuBar.add(jMenu_add);
+        MenuBar.add(jMenu_edit);
+        MenuBar.add(jMenu_delete);
+
+        this.setJMenuBar(MenuBar);
+    }
+
+    private void setupButtons() {
         JButton button_Swap = new JButton("Swap");
         JButton button_next = new JButton("Next");
         JButton button_previous = new JButton("Previous");
-
-        button_Swap.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                cardFlipPanel.flip();
-            }
-        });
 
         JPanel panel_button = new JPanel();
         panel_button.setBackground(Color.darkGray);
@@ -58,25 +86,53 @@ public class Screen extends JFrame{
         panel_button.setBorder(BorderFactory.createEmptyBorder(20, 10, 40, 10));  // top, left, bottom, right
         // Thêm panel nút vào vị trí SOUTH (dưới cùng)
         this.add(panel_button, BorderLayout.SOUTH);
+    }
 
-        this.setLocationRelativeTo(null);
-        this.setVisible(true);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    private void setupCardPanel() {
+        cardFlipPanel = new CardFlipPanel();
+        JScrollPane scrollPane = new JScrollPane(cardFlipPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Tăng tốc độ cuộn
+        this.add(scrollPane, BorderLayout.CENTER);
     }
 
     public void setQuestionContent(String question) {
         cardFlipPanel.setQuestionContent(question);
         SwingUtilities.invokeLater(() -> {
-            JScrollPane scrollPane = (JScrollPane)cardFlipPanel.getParent().getParent();
-            scrollPane.getVerticalScrollBar().setValue(0);
+        // Lấy reference đến JScrollPane
+        JScrollPane scrollPane = (JScrollPane)cardFlipPanel.getParent().getParent();
+        // Đặt thanh cuộn về đầu
+        scrollPane.getVerticalScrollBar().setValue(0);
+        // Buộc tính toán lại kích thước và cập nhật UI
+        cardFlipPanel.revalidate();
+        scrollPane.revalidate();
+        // Khiến scrollPane cập nhật lại trạng thái hiển thị của thanh cuộn
+        scrollPane.repaint();
         });
     }
 
     public void setAnswerContent(String answer) {
         cardFlipPanel.setAnswerContent(answer);
+        //đoạn này để di chuyển lên đầu mỗi trang khi chuyển thẻ
         SwingUtilities.invokeLater(() -> {
             JScrollPane scrollPane = (JScrollPane)cardFlipPanel.getParent().getParent();
             scrollPane.getVerticalScrollBar().setValue(0);
+            cardFlipPanel.revalidate();
+            scrollPane.revalidate();
+            scrollPane.repaint();
+        });
+    }
+    
+    public void swap() {
+    	cardFlipPanel.flip();
+        SwingUtilities.invokeLater(() -> {
+            JScrollPane scrollPane = (JScrollPane)cardFlipPanel.getParent().getParent();
+            scrollPane.getVerticalScrollBar().setValue(0);
+            cardFlipPanel.revalidate();
+            scrollPane.revalidate();
+            scrollPane.repaint();
         });
     }
 
@@ -86,7 +142,7 @@ public class Screen extends JFrame{
         for (Component comp : ((JPanel)this.getContentPane().getComponent(1)).getComponents()) {
             if (comp instanceof JButton) {
                 JButton btn = (JButton)comp;
-                if (btn.getText().equals("Next") || btn.getText().equals("Previous")) {
+                if (btn.getText().equals("Next") || btn.getText().equals("Previous") || btn.getText().endsWith("Swap")) {
                     btn.addActionListener(ac);
                 }
             }

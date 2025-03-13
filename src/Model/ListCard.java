@@ -69,42 +69,6 @@ public class ListCard {
         }
     }
 
-    // public String getNextQuesion() {
-    //     if(currentIndex == this.Length - 1) {
-    //         currentIndex = 0;
-    //     } else {
-    //         currentIndex++;
-    //     }
-    //     return this.listCard.get(currentIndex).getQuesion();
-    // }
-
-    // public String getNextAnswer() {
-    //     if(currentIndex == this.Length - 1) {
-    //         currentIndex = 0;
-    //     } else {
-    //         currentIndex++;
-    //     }
-    //     return this.listCard.get(currentIndex).getAnswer();
-    // }
-
-    // public String getPreviousQuesion() {
-    //     if(currentIndex == 0) {
-    //         currentIndex = this.Length - 1;
-    //     } else {
-    //         currentIndex--;
-    //     }
-    //     return this.listCard.get(currentIndex).getQuesion();
-    // }
-
-    // public String getPreviousAnswer() {
-    //     if(currentIndex == 0) {
-    //         currentIndex = this.Length - 1;
-    //     } else {
-    //         currentIndex--;
-    //     }
-    //     return this.listCard.get(currentIndex).getAnswer();
-    // }
-
     public void show() {
         for(Card next : this.listCard) {
             next.show();

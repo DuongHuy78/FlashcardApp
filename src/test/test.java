@@ -1,12 +1,8 @@
 package test;
 
-import java.awt.event.ActionListener;
-
 import javax.swing.UIManager;
-
 import Model.*;
 import View.*;
-import Controller.*;
 
 public class test {
     public static void main(String[] args) {
