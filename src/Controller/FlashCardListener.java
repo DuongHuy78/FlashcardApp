@@ -3,9 +3,9 @@ import java.awt.event.*;
 import Model.*;
 import View.*;
 public class FlashCardListener implements ActionListener {
-    private Screen screen;
+    private flipScreen screen;
     private ListCard listCard;
-    public FlashCardListener(Screen screen, ListCard listCard) {
+    public FlashCardListener(flipScreen screen, ListCard listCard) {
         this.screen = screen;
         this.listCard = listCard;
     }

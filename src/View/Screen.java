@@ -1,31 +1,30 @@
 package View;
 import javax.swing.*;
-import Model.ListCard;
-import Controller.FlashCardListener;
+import Model.*;
 
 import java.awt.*;
 import java.awt.event.*;
 
-public class Screen extends JFrame{
-    private ActionListener ac;
-    CardFlipPanel cardFlipPanel = new CardFlipPanel();
+public class screen extends JFrame {
+    protected ActionListener ac;
+    protected Lesson lesson; // Biến lesson để lưu thông tin bài học hiện tại
 
-    public Screen() {
+    // Constructor cho lớp cơ sở
+    public screen() {
         this.setTitle("Flashcard App");
         this.setSize(800, 600);
         this.setLayout(new BorderLayout());
         this.setBackground(Color.darkGray);
 
-        setupMenuBar();
-        setupCardPanel();
-        setupButtons();
+        setupMenuBar(); // Phần chung cho tất cả các màn hình
 
         this.setLocationRelativeTo(null);
-        this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setVisible(false); // Ẩn mặc định
     }
 
-    private void setupMenuBar() {
+    // MenuBar - phần chung cho tất cả các màn hình
+    protected void setupMenuBar() {
         JMenuBar MenuBar = new JMenuBar(); 
         JMenu jMenu_home = new JMenu("Home");
         JMenu jMenu_add = new JMenu("Add");
@@ -39,6 +38,11 @@ public class Screen extends JFrame{
         JMenuItem jMenuItem_delete_card = new JMenuItem("Delete this Card");
         JMenuItem jMenuItem_delete_list = new JMenuItem("Delete this List");
 
+        // Thêm chức năng quay về trang index từ menu Home
+        JMenuItem jMenuItem_home_index = new JMenuItem("Home Screen");
+        jMenuItem_home_index.addActionListener(e -> openIndexScreen(lesson));
+        jMenu_home.add(jMenuItem_home_index);
+        
         jMenu_add.addSeparator(); 
         jMenu_add.add(jMenuItem_add_card);
         jMenu_add.addSeparator(); 
@@ -60,92 +64,18 @@ public class Screen extends JFrame{
         this.setJMenuBar(MenuBar);
     }
 
-    private void setupButtons() {
-        JButton button_Swap = new JButton("Swap");
-        JButton button_next = new JButton("Next");
-        JButton button_previous = new JButton("Previous");
-
-        JPanel panel_button = new JPanel();
-        panel_button.setBackground(Color.darkGray);
-        panel_button.setLayout(new GridLayout(1, 3, 10, 0));  // Căn giữa các nút
-    
-        panel_button.add(button_next);
-        panel_button.add(button_Swap);
-        panel_button.add(button_previous);
-
-        Dimension buttonSize = new Dimension(100, 50);
-        button_Swap.setPreferredSize(buttonSize);
-        // button_Swap.setBackground(Color.GRAY);
-        // //set lại vì Feel and Look sẽ làm mất màu nền
-        // button_Swap.setOpaque(true);
-        // button_Swap.setBorderPainted(false);
-
-        button_next.setPreferredSize(buttonSize);
-        button_previous.setPreferredSize(buttonSize);
-
-        panel_button.setBorder(BorderFactory.createEmptyBorder(20, 10, 40, 10));  // top, left, bottom, right
-        // Thêm panel nút vào vị trí SOUTH (dưới cùng)
-        this.add(panel_button, BorderLayout.SOUTH);
-    }
-
-    private void setupCardPanel() {
-        cardFlipPanel = new CardFlipPanel();
-        JScrollPane scrollPane = new JScrollPane(cardFlipPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setBorder(null);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Tăng tốc độ cuộn
-        this.add(scrollPane, BorderLayout.CENTER);
-    }
-
-    public void setQuestionContent(String question) {
-        cardFlipPanel.setQuestionContent(question);
-        SwingUtilities.invokeLater(() -> {
-        // Lấy reference đến JScrollPane
-        JScrollPane scrollPane = (JScrollPane)cardFlipPanel.getParent().getParent();
-        // Đặt thanh cuộn về đầu
-        scrollPane.getVerticalScrollBar().setValue(0);
-        // Buộc tính toán lại kích thước và cập nhật UI
-        cardFlipPanel.revalidate();
-        scrollPane.revalidate();
-        // Khiến scrollPane cập nhật lại trạng thái hiển thị của thanh cuộn
-        scrollPane.repaint();
-        });
-    }
-
-    public void setAnswerContent(String answer) {
-        cardFlipPanel.setAnswerContent(answer);
-        //đoạn này để di chuyển lên đầu mỗi trang khi chuyển thẻ
-        SwingUtilities.invokeLater(() -> {
-            JScrollPane scrollPane = (JScrollPane)cardFlipPanel.getParent().getParent();
-            scrollPane.getVerticalScrollBar().setValue(0);
-            cardFlipPanel.revalidate();
-            scrollPane.revalidate();
-            scrollPane.repaint();
-        });
+    public void setLesson(Lesson lesson) {
+        this.lesson = lesson;
     }
     
-    public void swap() {
-    	cardFlipPanel.flip();
-        SwingUtilities.invokeLater(() -> {
-            JScrollPane scrollPane = (JScrollPane)cardFlipPanel.getParent().getParent();
-            scrollPane.getVerticalScrollBar().setValue(0);
-            cardFlipPanel.revalidate();
-            scrollPane.revalidate();
-            scrollPane.repaint();
+    // Phương thức để mở màn hình Index
+    protected void openIndexScreen(Lesson lesson) {
+        this.setVisible(false);
+        EventQueue.invokeLater(() -> {
+            // Tạo một instance mới của index và hiển thị
+            screen screen = new index();
+            screen.setLesson(lesson); // Set lesson to the screen
+            setVisible(true);
         });
-    }
-
-    public void setActionListener(ListCard listCard) {
-        this.ac = new FlashCardListener(this, listCard);
-
-        for (Component comp : ((JPanel)this.getContentPane().getComponent(1)).getComponents()) {
-            if (comp instanceof JButton) {
-                JButton btn = (JButton)comp;
-                if (btn.getText().equals("Next") || btn.getText().equals("Previous") || btn.getText().endsWith("Swap")) {
-                    btn.addActionListener(ac);
-                }
-            }
-        }
     }
 }

@@ -53,6 +53,10 @@ public class ListCard {
         return this.listCard.get(currentIndex).getAnswer();
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     public void nextCard() {
         if(currentIndex == this.Length - 1) {
             currentIndex = 0;

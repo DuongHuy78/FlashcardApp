@@ -33,6 +33,15 @@ public class Lesson {
         return this.Length;
     }
 
+    public ListCard getListCardByName(String name) {
+        for (ListCard listCard : listCards) {
+            if (listCard.getName().equals(name)) {
+                return listCard;
+            }
+        }
+        return null;
+    }
+
     public void show() {
         for(ListCard next : this.listCards) {
             next.show();

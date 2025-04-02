@@ -26,13 +26,15 @@ public class test {
         listCard2.addCard(new Card("What is 7+7?", "14",6));
 
         lesson.addListCard(listCard);
-        // lesson.addListCard(listCard2);
+        lesson.addListCard(listCard2);
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            Screen screen = new Screen();
-            screen.setActionListener(listCard);
-            screen.setQuestionContent(listCard.getQuestion());
-            screen.setAnswerContent(listCard.getAnswer());
+            screen screen = new index();
+            screen.setLesson(lesson); // Set lesson to the screen
+            // screen screen = new screen();
+            // screen.setActionListener(listCard);
+            // screen.setQuestionContent(listCard.getQuestion());
+            // screen.setAnswerContent(listCard.getAnswer());
         } catch (Exception e) {
             e.printStackTrace();
         }

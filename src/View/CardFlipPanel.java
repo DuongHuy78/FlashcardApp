@@ -4,8 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class CardFlipPanel extends JPanel {
-    private String questionContent;
-    private String answerContent;
+    private String questionContent = "";
+    private String answerContent = "";
     private boolean isShowQuestion;
     private Timer timer;
     private int animationSteps = 20;
@@ -17,14 +17,14 @@ public class CardFlipPanel extends JPanel {
         setBackground(Color.lightGray);
     }
 
-    public void setQuestionContent(String front) {
-        questionContent = front;
+    public void setQuestionContent(String question) {
+        questionContent = (question != null) ? question : ""; // Bảo vệ khỏi null
         revalidate();
         repaint();      //Yêu cầu hệ thống vẽ lại thành phần, từ đó tự động gọi paintComponent(Graphics g).
     }
 
-    public void setAnswerContent(String front) {
-        answerContent = front;
+    public void setAnswerContent(String answer) {
+        answerContent = (answer != null) ? answer : ""; // Bảo vệ khỏi null
         revalidate();
         repaint();      //Yêu cầu hệ thống vẽ lại thành phần, từ đó tự động gọi paintComponent(Graphics g).
     }
